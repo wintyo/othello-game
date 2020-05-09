@@ -1,4 +1,5 @@
 import path from 'path';
+import * as webpack from 'webpack';
 import merge from 'webpack-merge';
 import autoprefixer from 'autoprefixer';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
@@ -11,7 +12,12 @@ const config = merge(baseConfig, {
     path: path.resolve(__dirname, './dist'),
     publicPath: './',
   },
-});
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+    }),
+  ],
+} as webpack.Configuration);
 
 config.module.rules.push({
   test: /\.(sass|scss)/,

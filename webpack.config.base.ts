@@ -1,6 +1,7 @@
 import path from 'path';
 import * as webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import AutoDllWebpackPlugin from 'autodll-webpack-plugin';
 
 export default {
   entry: {
@@ -39,6 +40,15 @@ export default {
       template: path.resolve(__dirname, './src/pug/index.pug'),
       hash: true,
       inject: true,
+    }),
+    new AutoDllWebpackPlugin({
+      inject: true,
+      filename: '[name].js',
+      entry: {
+        vendor: [
+          'three',
+        ],
+      },
     }),
   ],
 } as webpack.Configuration;
