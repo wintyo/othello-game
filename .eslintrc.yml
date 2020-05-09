@@ -1,0 +1,56 @@
+parser: "@typescript-eslint/parser"
+parserOptions:
+  ecmaVersion: 6
+  sourceType: module
+  ecmaFeatures:
+    modules: true
+env:
+  node: true
+  browser: true
+  es6: true
+extends:
+  - "eslint:recommended"
+plugins:
+  - "@typescript-eslint"
+rules:
+  no-var: "error"  # varは使わない
+  semi: ["error", "always"]  # セミコロンは強制
+  indent:  # インデントは2
+    - "error"
+    - 2
+    -
+      SwitchCase: 1  # switch文は１階層インデントを入れる
+  quotes: ["error", "single"]  # クォートはダブルにする
+  eol-last: "error"  # 最後は改行で終わる
+  no-console: "warn"  # コンソールは警告にする
+  arrow-parens: ["error", "always"]  # アロー関数の括弧は必ず書く
+  prefer-const: "error"  # constで十分な場合はエラーを出す
+  no-multiple-empty-lines:  # 複数行の改行スペースは禁止
+    - "error"
+    -
+      max: 1
+  comma-dangle: ["error", "always-multiline"]  # けつカンマの設定をする
+  prefer-arrow-callback: "error"  # コールバック関数はアロー関数にする
+  no-restricted-syntax:  # 構文に制約をかける
+    - "error"
+    -
+      selector: "ForInStatement"  # for..inの禁止
+      message: "for..inは禁止しています。別な方法で実装してください。"
+    -
+      selector: "ForOfStatement"  # for..ofの禁止
+      message: "for..ofは禁止しています。別な方法で実装してください。"
+    -
+      selector: "LabeledStatement"  # labelの禁止
+      message: "labelは禁止しています。別な方法で実装してください。"
+    -
+      selector: "WithStatement"  # withの禁止
+      message: "withは禁止しています。別な方法で実装してください。"
+
+  # typescriptに上書き
+  no-unused-vars: "off"  # eslintの設定はoffする
+  "@typescript-eslint/no-unused-vars":  # 未使用の変数はエラーをだす
+    - "error"
+    -
+      vars: "local"
+      args: "after-used"
+

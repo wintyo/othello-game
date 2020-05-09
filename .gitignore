@@ -1,0 +1,25 @@
+node_modules/
+storybook-static/
+
+# 出力ファイル
+dist/
+.storybook-out/
+.production-out/
+.staging-out/
+
+# 生成ファイル
+src/css/core-webfont.scss
+src/css/resources/core-webfont-mixin.scss
+src/fonts/_dist
+
+# エラー関係
+package-lock.json
+yarn-error.log
+npm-debug.log
+
+# エディタなどで生成されるファイル
+.idea/
+.DS_Store
+
+# 不要ファイル後に削除
+abcOLDxxx/

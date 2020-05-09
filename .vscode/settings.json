@@ -1,0 +1,31 @@
+{
+  // npmタスクを表示させる
+  "npm.enableScriptExplorer": true,
+
+  // eslintをvueでも適応させる
+  "eslint.validate": ["javascript", "typescript", "vue"],
+
+  // formatはfalseにしないと変な変換がされる場合がある
+  "editor.formatOnSave": false,
+
+  // stylelintのauto fixを有効にする
+  "stylelint.autoFixOnSave": true,
+
+  // VSCodeのプロパティチェックは無視する（stylelintでチェックするため）
+  "scss.lint.unknownProperties": "ignore",
+
+  // html内でvueの変数をチェックする
+  "vetur.experimental.templateInterpolationService": true,
+
+  // スペルチェックの設定
+  "cSpell.ignoreRegExpList": ["[０-９Ａ-Ｚａ-ｚぁ-んァ-ヶ亜-熙纊-黑]+"],
+  "cSpell.userWords": [
+    "submenu",
+    "titlebar"
+  ],
+
+  // 保存時にauto fixさせる
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+}
