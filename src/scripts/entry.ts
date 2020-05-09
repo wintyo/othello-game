@@ -1,3 +1,5 @@
+import '../css/base.scss';
+
 import * as THREE from 'three';
 
 const WIDTH = 500;
