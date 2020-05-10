@@ -39,6 +39,37 @@ export default class Othello {
   putPhase() {
     const nowPlayer = this.players[this.turn];
     nowPlayer.putPhase();
+    nowPlayer.event.once('put-stone', async ({ x, y, color }) => {
+      const turnPositionsList = this.table.putStone(x, y, color);
+      await this.viewer.putStone({ x, y }, color, turnPositionsList);
+      this.nextTurn();
+    });
+  }
+
+  /**
+   * 次のターンへ移る
+   */
+  nextTurn() {
+    // 置けるプレイヤーが出るまで次のプレイヤーに移動する
+    let nextTurn = (this.turn + 1) % this.players.length;
+    while (nextTurn !== this.turn) {
+      const nextPlayer = this.players[nextTurn];
+      // 石がおけるならそのプレイヤーで配置モードへ移行する
+      if (this.table.checkCanPutStone(nextPlayer.color)) {
+        this.turn = nextTurn;
+        this.putPhase();
+        return;
+      }
+      nextTurn = (nextTurn + 1) % this.players.length;
+    }
+
+    // 自分の番まで戻ってきて石がおけるなら自分のターンを続ける
+    if (this.table.checkCanPutStone(this.players[this.turn].color)) {
+      this.putPhase();
+      return;
+    }
+
+    console.log('finish');
   }
 
   /**

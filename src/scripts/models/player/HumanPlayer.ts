@@ -11,6 +11,7 @@ export default class HumanPlayer extends BasePlayer {
     this.viewer = viewer;
 
     this.onTileHover = this.onTileHover.bind(this);
+    this.onTileClick = this.onTileClick.bind(this);
   }
 
   /**
@@ -23,10 +24,32 @@ export default class HumanPlayer extends BasePlayer {
   }
 
   /**
+   * viewerのタイル上をクリックしたときの処理
+   * @param pos - タイル位置
+   */
+  onTileClick(pos: { x: number, y: number }) {
+    try {
+      super.putStone(pos.x, pos.y);
+      this.finishPutPhase();
+    } catch (e) {
+      alert(e);
+    }
+  }
+
+  /**
    * 石を置くフェーズに入る
    */
   putPhase() {
     // 人が石を選択できるようにviewerのイベントにセットする
     this.viewer.event.on('tile-hover', this.onTileHover);
+    this.viewer.event.on('tile-click', this.onTileClick);
+  }
+
+  /**
+   * 石を置くフェーズの終了
+   */
+  finishPutPhase() {
+    this.viewer.event.off('tile-hover', this.onTileHover);
+    this.viewer.event.off('tile-click', this.onTileClick);
   }
 }

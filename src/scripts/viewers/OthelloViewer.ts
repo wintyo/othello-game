@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { EventEmitter } from 'events';
 import { flatten } from 'lodash-es';
 
+import { omitNullableHandler } from '~/utils/';
+
 interface IEvents {
   'tile-hover': { x: number, y: number };
   'tile-click': { x: number, y: number };
@@ -180,6 +182,47 @@ export default class OthelloViewer {
         this.tileObjList2D[turnPos.y][turnPos.x].focus();
       });
     });
+  }
+
+  /**
+   * 石を置く
+   * @param pos - 位置
+   * @param color - 色
+   * @param turnPositionsList - 反転させる座標リスト
+   */
+  putStone(
+    pos: { x: number, y: number },
+    color: number,
+    turnPositionsList: Array<Array<{ x: number, y: number }>>
+  ) {
+    this.resetPreviewStone();
+    const stone = createStone(this.stoneSize, this.stoneHeight, color);
+    this.tileObjList2D[pos.y][pos.x].putObject(stone);
+
+    // 打った先からの距離の最大値を求める
+    const maxFar = Math.max(...turnPositionsList.map((turnPositions) => turnPositions.length));
+
+    let promise: Promise<any> = Promise.resolve();
+    // 打った先から近い順に石を回転させる
+    for (let far = 0; far < maxFar; far++) {
+      const turnStones = turnPositionsList
+        .filter((turnPositions) => far < turnPositions.length)
+        .map((turnPositions) => {
+          const turnPos = turnPositions[far];
+          return this.tileObjList2D[turnPos.y][turnPos.x].puttedObject;
+        })
+        .filter(omitNullableHandler);
+      // 非同期処理のチェーンをつなげる
+      promise = promise.then(() => {
+        return Promise.all(turnStones.map((turnStone) => {
+          if (turnStone instanceof StoneObject3D) {
+            return turnStone.turnAnimation();
+          }
+          return Promise.resolve();
+        }));
+      });
+    }
+    return promise;
   }
 
   /**

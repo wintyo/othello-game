@@ -115,9 +115,29 @@ export default class Table {
         this.stones[turnPos.y][turnPos.x] = color;
       });
     });
+
+    return turnPositionsList;
   }
 
   getTurnPositionsList(x: number, y: number, color: number) {
     return getTurnPositionsList(this.stones, { x, y }, color);
+  }
+
+  /**
+   * 置く場所が存在するかチェック
+   * @param color - 色
+   */
+  checkCanPutStone(color: number) {
+    for (let y = 0; y < this.numDivision; y++) {
+      for (let x = 0; x < this.numDivision; x++) {
+        const turnPositionsList = getTurnPositionsList(this.stones, { x, y }, color);
+        // ひっくり返せる場所が存在したらtrueを返して終了
+        if (turnPositionsList.length > 0) {
+          return true;
+        }
+      }
+    }
+    // 見つからなかったらfalseを返す
+    return false;
   }
 }

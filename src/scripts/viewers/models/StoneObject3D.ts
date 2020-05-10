@@ -30,6 +30,27 @@ export default class StoneObject3D extends THREE.Object3D {
   }
 
   /**
+   * 回転させるアニメーション
+   */
+  turnAnimation() {
+    return new Promise((resolve) => {
+      const numFrame = 30;
+      const turnSpeed = Math.PI / numFrame;
+      let frame = 0;
+      const turnStoneFunc = () => {
+        this.rotation.x += turnSpeed;
+        frame += 1;
+        if (frame < numFrame) {
+          window.requestAnimationFrame(turnStoneFunc);
+          return;
+        }
+        resolve();
+      };
+      window.requestAnimationFrame(turnStoneFunc);
+    });
+  }
+
+  /**
    * 透明度の設定
    * @param opacity - 透明度
    */

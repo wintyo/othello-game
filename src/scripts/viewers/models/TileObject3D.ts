@@ -13,7 +13,7 @@ export default class TileObject3D extends THREE.Object3D {
   /** 枠線オブジェクト */
   private frame: THREE.Line;
   /** 上に置かれているオブジェクト */
-  private puttedObject?: THREE.Object3D;
+  public puttedObject?: THREE.Object3D;
 
   constructor(
     private squareSize: number,
