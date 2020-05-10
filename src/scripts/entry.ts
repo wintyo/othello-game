@@ -18,3 +18,4 @@ const NUM_DIVISION = 8;
 const othello = new Othello(elCanvas, BOARD_SIZE, NUM_DIVISION);
 
 othello.reset(othelloData);
+othello.start();

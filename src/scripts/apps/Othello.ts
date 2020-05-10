@@ -1,11 +1,17 @@
 import Table from '../models/Table';
 import OthelloViewer from '../viewers/OthelloViewer';
+import BasePlayer from '../models/player/BasePlayer';
+import HumanPlayer from '../models/player/HumanPlayer';
 
 export default class Othello {
   /** 盤面情報 */
   private table: Table;
   /** ビューワー */
   private viewer: OthelloViewer;
+  /** プレイヤー */
+  private players: Array<BasePlayer>;
+  /** 誰のターンか */
+  private turn = 0;
 
   constructor(
     elCanvas: HTMLCanvasElement,
@@ -14,6 +20,56 @@ export default class Othello {
   ) {
     this.table = new Table(numDivision);
     this.viewer = new OthelloViewer(elCanvas, boardSize, this.table);
+    this.players = [
+      new HumanPlayer(1, this.table, this.viewer),
+      new HumanPlayer(2, this.table, this.viewer),
+    ];
+  }
+
+  /**
+   * ゲーム開始
+   */
+  start() {
+    this.putPhase();
+  }
+
+  /**
+   * オセロの配置モード
+   */
+  putPhase() {
+    const nowPlayer = this.players[this.turn];
+    nowPlayer.putPhase();
+    nowPlayer.event.once('put-stone', async ({ x, y, color }) => {
+      const turnPositionsList = this.table.putStone(x, y, color);
+      await this.viewer.putStone({ x, y }, color, turnPositionsList);
+      this.nextTurn();
+    });
+  }
+
+  /**
+   * 次のターンへ移る
+   */
+  nextTurn() {
+    // 置けるプレイヤーが出るまで次のプレイヤーに移動する
+    let nextTurn = (this.turn + 1) % this.players.length;
+    while (nextTurn !== this.turn) {
+      const nextPlayer = this.players[nextTurn];
+      // 石がおけるならそのプレイヤーで配置モードへ移行する
+      if (this.table.checkCanPutStone(nextPlayer.color)) {
+        this.turn = nextTurn;
+        this.putPhase();
+        return;
+      }
+      nextTurn = (nextTurn + 1) % this.players.length;
+    }
+
+    // 自分の番まで戻ってきて石がおけるなら自分のターンを続ける
+    if (this.table.checkCanPutStone(this.players[this.turn].color)) {
+      this.putPhase();
+      return;
+    }
+
+    console.log('finish');
   }
 
   /**
@@ -21,6 +77,7 @@ export default class Othello {
    * @param othelloData - オセロデータ
    */
   reset(othelloData: Array<Array<number>>) {
+    this.turn = 0;
     this.table.reset(othelloData);
   }
 }

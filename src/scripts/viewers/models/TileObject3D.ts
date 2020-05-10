@@ -13,7 +13,7 @@ export default class TileObject3D extends THREE.Object3D {
   /** 枠線オブジェクト */
   private frame: THREE.Line;
   /** 上に置かれているオブジェクト */
-  private puttedObject?: THREE.Object3D;
+  public puttedObject?: THREE.Object3D;
 
   constructor(
     private squareSize: number,
@@ -47,6 +47,11 @@ export default class TileObject3D extends THREE.Object3D {
     this.add(this.plane);
   }
 
+  /** タイルオブジェクトの取得 */
+  getPlane() {
+    return this.plane;
+  }
+
   /**
    * タイルの上にオブジェクトを置く
    * @param object3d - オブジェクト
@@ -65,5 +70,29 @@ export default class TileObject3D extends THREE.Object3D {
       this.remove(this.puttedObject);
     }
     this.puttedObject = undefined;
+  }
+
+  /**
+   * フォーカス時
+   */
+  focus() {
+    if (this.planeColor.focus) {
+      // @ts-ignore
+      this.plane.material.color = new THREE.Color(this.planeColor.focus);
+    }
+    if (this.frameColor.focus) {
+      // @ts-ignore
+      this.frame.material.color = new THREE.Color(this.frameColor.focus);
+    }
+  }
+
+  /**
+   * ブラー時
+   */
+  blur() {
+    // @ts-ignore
+    this.plane.material.color = new THREE.Color(this.planeColor.default);
+    // @ts-ignore
+    this.frame.material.color = new THREE.Color(this.frameColor.default);
   }
 }

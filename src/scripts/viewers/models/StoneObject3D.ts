@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { COLORS } from '~/constants/Apps';
 
 export default class StoneObject3D extends THREE.Object3D {
+  public pos: { x: number, y: number } | null = null;
+
   constructor(
     diameter: number,
     height: number,
@@ -25,6 +27,42 @@ export default class StoneObject3D extends THREE.Object3D {
     );
     cylinderBlack.position.set(0, -halfHeight / 2, 0);
     this.add(cylinderBlack);
+  }
+
+  /**
+   * 回転させるアニメーション
+   */
+  turnAnimation() {
+    return new Promise((resolve) => {
+      const numFrame = 30;
+      const turnSpeed = Math.PI / numFrame;
+      let frame = 0;
+      const turnStoneFunc = () => {
+        this.rotation.x += turnSpeed;
+        frame += 1;
+        if (frame < numFrame) {
+          window.requestAnimationFrame(turnStoneFunc);
+          return;
+        }
+        resolve();
+      };
+      window.requestAnimationFrame(turnStoneFunc);
+    });
+  }
+
+  /**
+   * 透明度の設定
+   * @param opacity - 透明度
+   */
+  setOpacity(opacity: number) {
+    // @ts-ignore
+    this.opacity = opacity;
+    this.children.forEach((child) => {
+      // @ts-ignore
+      const material = child.material;
+      material.transparent = true;
+      material.opacity = opacity;
+    });
   }
 
   /**
