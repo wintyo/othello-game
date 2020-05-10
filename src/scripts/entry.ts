@@ -2,6 +2,8 @@ import '../css/base.scss';
 
 import Othello from './apps/Othello';
 
+import othelloData from './data/othello.json';
+
 const WIDTH = 500;
 const HEIGHT = 500;
 
@@ -13,4 +15,6 @@ appElement?.appendChild(elCanvas);
 
 const BOARD_SIZE = 8;
 const NUM_DIVISION = 8;
-new Othello(elCanvas, BOARD_SIZE, NUM_DIVISION);
+const othello = new Othello(elCanvas, BOARD_SIZE, NUM_DIVISION);
+
+othello.reset(othelloData);

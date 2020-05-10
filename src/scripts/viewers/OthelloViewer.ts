@@ -8,6 +8,20 @@ import { COLORS } from '~/constants/Apps';
 
 // viewer models
 import TileObject3D from './models/TileObject3D';
+import StoneObject3D from './models/StoneObject3D';
+
+/**
+ * オセロ石を作る
+ * @param size - サイズ
+ * @param height - 高さ
+ * @param color - 色
+ */
+function createStone(size: number, height: number, color: number) {
+  const stone = new StoneObject3D(size, height);
+  stone.position.set(0, height / 2, 0);
+  stone.setColor(color);
+  return stone;
+}
 
 export default class OthelloViewer {
   /** 1タイルあたりのサイズ */
@@ -18,6 +32,12 @@ export default class OthelloViewer {
   private camera!: THREE.PerspectiveCamera;
   /** シーン */
   private scene!: THREE.Scene;
+  /** タイルオブジェクトリスト */
+  private tileObjList2D!: Array<Array<TileObject3D>>;
+  /** オセロ石のサイズ */
+  private stoneSize: number;
+  /** オセロ石の高さ */
+  private stoneHeight = 0.2;
 
   constructor(
     private elCanvas: HTMLCanvasElement,
@@ -25,9 +45,14 @@ export default class OthelloViewer {
     private table: Table,
   ) {
     this.tileSize = boardSize / table.numDivision;
+    this.stoneSize = 0.9 * this.tileSize;
 
     this.init();
     this.renderLoop();
+
+    this.table.event.on('reset', () => {
+      this.reset();
+    });
   }
 
   /**
@@ -62,6 +87,7 @@ export default class OthelloViewer {
         tileObjs[y][x] = tileObj;
       }
     }
+    this.tileObjList2D = tileObjs;
   }
 
   /**
@@ -70,5 +96,21 @@ export default class OthelloViewer {
   renderLoop() {
     window.requestAnimationFrame(this.renderLoop.bind(this));
     this.renderer.render(this.scene, this.camera);
+  }
+
+  /**
+   * リセット処理
+   */
+  reset() {
+    for (let i = 0; i < this.table.numDivision; i++) {
+      for (let j = 0; j < this.table.numDivision; j++) {
+        this.tileObjList2D[i][j].removeObject();
+        // 石が配置されていたらその色の石を配置する
+        if (this.table.stones[i][j]) {
+          const stone = createStone(this.stoneSize, this.stoneHeight, this.table.stones[i][j]);
+          this.tileObjList2D[i][j].putObject(stone);
+        }
+      }
+    }
   }
 }

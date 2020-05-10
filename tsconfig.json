@@ -19,6 +19,7 @@
     "strictPropertyInitialization": true,  /* クラス内のプロパティの初期化の厳密なチェックを有効にします。 */
     "alwaysStrict": true,                  /* 厳格モードで解析してソース ファイルごとに "use strict" を生成します。 */
 
+    "allowSyntheticDefaultImports": true,
     // JSONをimportできるようにする
     "resolveJsonModule": true,
 

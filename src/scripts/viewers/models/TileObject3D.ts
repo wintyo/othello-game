@@ -12,6 +12,8 @@ export default class TileObject3D extends THREE.Object3D {
   private plane: THREE.Mesh;
   /** 枠線オブジェクト */
   private frame: THREE.Line;
+  /** 上に置かれているオブジェクト */
+  private puttedObject?: THREE.Object3D;
 
   constructor(
     private squareSize: number,
@@ -43,5 +45,25 @@ export default class TileObject3D extends THREE.Object3D {
     this.plane.rotation.x = -Math.PI / 2;
 
     this.add(this.plane);
+  }
+
+  /**
+   * タイルの上にオブジェクトを置く
+   * @param object3d - オブジェクト
+   */
+  putObject(object3d: THREE.Object3D) {
+    this.removeObject();
+    this.puttedObject = object3d;
+    this.add(this.puttedObject);
+  }
+
+  /**
+   * タイルの上のオブジェクトを外す
+   */
+  removeObject() {
+    if (this.puttedObject) {
+      this.remove(this.puttedObject);
+    }
+    this.puttedObject = undefined;
   }
 }
