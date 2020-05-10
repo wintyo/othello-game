@@ -32,7 +32,10 @@ export default {
     ],
   },
   resolve: {
-    extensions: ['ts', '.js'],
+    alias: {
+      '~': path.resolve(__dirname, './src/scripts/'),
+    },
+    extensions: ['.ts', '.js'],
   },
   plugins: [
     new HtmlWebpackPlugin({

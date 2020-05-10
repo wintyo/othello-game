@@ -1,34 +1,16 @@
 import '../css/base.scss';
 
-import * as THREE from 'three';
+import Othello from './apps/Othello';
 
 const WIDTH = 500;
 const HEIGHT = 500;
 
-// レンダラーを作成
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.getElementById('canvas') as HTMLCanvasElement,
-});
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(WIDTH, HEIGHT);
+const elCanvas = document.createElement('canvas');
+elCanvas.width = WIDTH;
+elCanvas.height = HEIGHT;
+const appElement = document.getElementById('app');
+appElement?.appendChild(elCanvas);
 
-// シーンを作成
-const scene = new THREE.Scene();
-
-// カメラを作成
-const camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT);
-camera.position.set(0, 0, 1000);
-
-// 箱を作成
-const geometry = new THREE.BoxGeometry(200, 200, 200);
-const material = new THREE.MeshNormalMaterial();
-const box = new THREE.Mesh(geometry, material);
-scene.add(box);
-
-tick();
-
-function tick() {
-  box.rotation.y += 0.01;
-  renderer.render(scene, camera);
-  requestAnimationFrame(tick);
-}
+const BOARD_SIZE = 8;
+const NUM_DIVISION = 8;
+new Othello(elCanvas, BOARD_SIZE, NUM_DIVISION);
