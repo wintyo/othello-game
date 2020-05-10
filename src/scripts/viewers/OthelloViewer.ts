@@ -1,4 +1,11 @@
 import * as THREE from 'three';
+import { EventEmitter } from 'events';
+import { flatten } from 'lodash-es';
+
+interface IEvents {
+  'tile-hover': { x: number, y: number };
+  'tile-click': { x: number, y: number };
+}
 
 // model
 import Table from '~/models/Table';
@@ -24,6 +31,9 @@ function createStone(size: number, height: number, color: number) {
 }
 
 export default class OthelloViewer {
+  /** イベント */
+  public event: EventEmitter<IEvents>;
+
   /** 1タイルあたりのサイズ */
   private tileSize: number;
   /** レンダラー */
@@ -38,14 +48,21 @@ export default class OthelloViewer {
   private stoneSize: number;
   /** オセロ石の高さ */
   private stoneHeight = 0.2;
+  /** プレビュー用の石 */
+  private previewStoneObj: StoneObject3D;
 
   constructor(
     private elCanvas: HTMLCanvasElement,
     private boardSize: number,
     private table: Table,
   ) {
+    this.event = new EventEmitter<IEvents>();
     this.tileSize = boardSize / table.numDivision;
     this.stoneSize = 0.9 * this.tileSize;
+
+    // 仮置きする石を用意しておく
+    this.previewStoneObj = createStone(this.stoneSize, this.stoneHeight, 1);
+    this.previewStoneObj.setOpacity(0.9);
 
     this.init();
     this.renderLoop();
@@ -53,6 +70,9 @@ export default class OthelloViewer {
     this.table.event.on('reset', () => {
       this.reset();
     });
+
+    this.elCanvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+    this.elCanvas.addEventListener('click', this.onMouseClick.bind(this));
   }
 
   /**
@@ -112,5 +132,111 @@ export default class OthelloViewer {
         }
       }
     }
+  }
+
+  /**
+   * 石の仮配置のリセット
+   */
+  resetPreviewStone() {
+    // 仮配置した座標があるなら外す
+    if (this.previewStoneObj.pos) {
+      const { pos } = this.previewStoneObj;
+      this.tileObjList2D[pos.y][pos.x].removeObject();
+    }
+    this.previewStoneObj.pos = null;
+
+    // 全てのタイルのフォーカスを外しておく
+    this.tileObjList2D.forEach((tileObjList) => {
+      tileObjList.forEach((tileObj) => {
+        tileObj.blur();
+      });
+    });
+  }
+
+  /**
+   * 石を仮配置する
+   * @param x - x座標
+   * @param y - y座標
+   * @param color - 色
+   */
+  previewPutStone(x: number, y: number, color: number) {
+    // まずリセットする
+    this.resetPreviewStone();
+
+    // ひっくり返せるところを取得する
+    const turnPositionsList = this.table.getTurnPositionsList(x, y, color);
+    if (turnPositionsList.length <= 0) {
+      return;
+    }
+
+    const previewPutPos = { x, y };
+    this.previewStoneObj.setColor(color);
+    this.tileObjList2D[previewPutPos.y][previewPutPos.x].putObject(this.previewStoneObj);
+    this.previewStoneObj.pos = previewPutPos;
+
+    // 置く場所とひっくり返す場所をフォーカスする
+    turnPositionsList.forEach((turnPositions) => {
+      turnPositions.forEach((turnPos) => {
+        this.tileObjList2D[turnPos.y][turnPos.x].focus();
+      });
+    });
+  }
+
+  /**
+   * Canvas内でのマウス移動
+   * @param event - イベント
+   */
+  onMouseMove(event: MouseEvent) {
+    const pos = this.getTilePosition(event.offsetX, event.offsetY);
+    if (pos) {
+      this.event.emit('tile-hover', pos);
+    }
+  }
+
+  /**
+   * Canvas内でのマウスクリック
+   * @param event - イベント
+   */
+  onMouseClick(event: MouseEvent) {
+    const pos = this.getTilePosition(event.offsetX, event.offsetY);
+    if (pos) {
+      this.event.emit('tile-click', pos);
+    }
+  }
+
+  /**
+   * タイルオブジェクトの番地を取得する
+   * @param mouseX - マウスのX座標
+   * @param mouseY - マウスのY座標
+   */
+  getTilePosition(mouseX: number, mouseY: number) {
+    // 取得したスクリーン座標を-1〜1に正規化する
+    const normX =  (mouseX / this.elCanvas.width) * 2 - 1;
+    const normY = -(mouseY / this.elCanvas.height) * 2 + 1;
+
+    // マウスの位置ベクトル
+    const pos = new THREE.Vector3(normX, normY, 1);
+    // スクリーン座標系からオブジェクト座標系に変換
+    pos.unproject(this.camera);
+
+    // レイを作成
+    const ray = new THREE.Raycaster(this.camera.position, pos.sub(this.camera.position).normalize());
+
+    // 交差判定対象のオブジェクトを取得
+    const planes = flatten(this.tileObjList2D.map((tileObjList) => {
+      return tileObjList.map((tileObj) => tileObj.getPlane());
+    }));
+    // 交差判定
+    const objs = ray.intersectObjects(planes);
+
+    if (objs.length <= 0) {
+      return null;
+    }
+    // @ts-ignore
+    const index = planes.indexOf(objs[0].object);
+    return {
+      x: index % this.table.numDivision,
+      y: Math.floor(index / this.table.numDivision),
+    };
   }
 }
