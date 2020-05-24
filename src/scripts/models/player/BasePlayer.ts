@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import Table from '../Table';
 
+import { ePlayerColor } from '~/enums/Apps';
+
 interface IEvents {
   'put-stone': { x: number, y: number, color: number };
 }
@@ -10,7 +12,7 @@ export default abstract class BasePlayer {
   public event: EventEmitter<IEvents>;
 
   constructor(
-    public color: number,
+    public color: ePlayerColor,
     protected table: Table
   ) {
     this.event = new EventEmitter<IEvents>();

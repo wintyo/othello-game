@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 
+import { tStoneTable } from '~/interfaces/Apps';
+
 interface IEvents {
   reset: void;
 }
@@ -12,7 +14,7 @@ interface IEvents {
  * @param color - 色
  */
 function getTurnPositionsInLine(
-  stones: Array<Array<number>>,
+  stones: tStoneTable,
   vec: { x: number, y: number },
   pos: { x: number, y: number },
   color: number,
@@ -51,7 +53,7 @@ function getTurnPositionsInLine(
  * @param color - 色
  */
 function getTurnPositionsList(
-  stones: Array<Array<number>>,
+  stones: tStoneTable,
   pos: { x: number, y: number },
   color: number,
 ) {
@@ -74,7 +76,7 @@ export default class Table {
   public event: EventEmitter<IEvents>;
 
   /** 石情報 */
-  public stones: Array<Array<number>>;
+  public stones: tStoneTable;
 
   constructor(
     public numDivision: number,
@@ -90,7 +92,7 @@ export default class Table {
   /**
    * データのリセット
    */
-  reset(othelloData: Array<Array<number>>) {
+  reset(othelloData: tStoneTable) {
     this.stones = othelloData;
     this.event.emit('reset');
   }

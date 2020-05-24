@@ -2,11 +2,13 @@ import BasePlayer from './BasePlayer';
 import Table from '../Table';
 import OthelloViewer from '~/viewers/OthelloViewer';
 
+import { ePlayerColor } from '~/enums/Apps';
+
 export default class HumanPlayer extends BasePlayer {
   /** ビューワー */
   private viewer: OthelloViewer;
 
-  constructor(color: number, table: Table, viewer: OthelloViewer) {
+  constructor(color: ePlayerColor, table: Table, viewer: OthelloViewer) {
     super(color, table);
     this.viewer = viewer;
 

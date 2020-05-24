@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { COLORS } from '~/constants/Apps';
 
+import { ePlayerColor } from '~/enums/Apps';
+
 export default class StoneObject3D extends THREE.Object3D {
   public pos: { x: number, y: number } | null = null;
 
@@ -69,8 +71,8 @@ export default class StoneObject3D extends THREE.Object3D {
    * 指定した色が上に向くようにセットする
    * @param color - 上にしたい色
    */
-  setColor(color: number) {
-    if (color === 1) {
+  setColor(color: ePlayerColor) {
+    if (color === ePlayerColor.Black) {
       this.rotation.x = Math.PI;
       return;
     }

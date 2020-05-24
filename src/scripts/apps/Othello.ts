@@ -3,6 +3,11 @@ import OthelloViewer from '../viewers/OthelloViewer';
 import BasePlayer from '../models/player/BasePlayer';
 import HumanPlayer from '../models/player/HumanPlayer';
 
+import { ePlayerColor } from '~/enums/Apps';
+
+// interfaces
+import { tStoneTable } from '~/interfaces/Apps';
+
 export default class Othello {
   /** 盤面情報 */
   private table: Table;
@@ -21,8 +26,8 @@ export default class Othello {
     this.table = new Table(numDivision);
     this.viewer = new OthelloViewer(elCanvas, boardSize, this.table);
     this.players = [
-      new HumanPlayer(1, this.table, this.viewer),
-      new HumanPlayer(2, this.table, this.viewer),
+      new HumanPlayer(ePlayerColor.Black, this.table, this.viewer),
+      new HumanPlayer(ePlayerColor.White, this.table, this.viewer),
     ];
   }
 
@@ -76,7 +81,7 @@ export default class Othello {
    * 初期状態に戻す
    * @param othelloData - オセロデータ
    */
-  reset(othelloData: Array<Array<number>>) {
+  reset(othelloData: tStoneTable) {
     this.turn = 0;
     this.table.reset(othelloData);
   }
