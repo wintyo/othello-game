@@ -5,3 +5,9 @@ export enum ePlayerColor {
   /** 白 */
   White = 2,
 }
+
+/** プレイヤータイプ */
+export enum ePlayerType {
+  /** 人間 */
+  Human = 'Human',
+}

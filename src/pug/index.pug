@@ -15,17 +15,25 @@ html(lang="ja")
             button#play-button 開始
           .controller__table
             select#table-select
+      .othello__message#message
       .othello__info
         .info
-          .info__num-stone
-            .stone
-              .stone__label 黒:
-              input.stone__count#count-black(value="0", readonly)
-            span 、
-            .stone
-              .stone__label 白:
-              input.stone__count#count-white(value="0", readonly)
-      .othello__message#message
-        | メッセージです。
+          .info__players
+            .player
+              .player__color 黒
+              .player__type
+                select#player-type-select-black
+              .player__count
+                .stone
+                  .stone__label 個数:
+                  input.stone__count#count-black(value="0", readonly)
+            .player
+              .player__color 白
+              .player__type
+                select#player-type-select-white
+              .player__count
+                .stone
+                  .stone__label 個数:
+                  input.stone__count#count-white(value="0", readonly)
       .othello__game
         #app

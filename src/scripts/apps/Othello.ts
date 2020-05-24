@@ -5,7 +5,7 @@ import OthelloViewer from '../viewers/OthelloViewer';
 import BasePlayer from '../models/player/BasePlayer';
 import HumanPlayer from '../models/player/HumanPlayer';
 
-import { ePlayerColor } from '~/enums/Apps';
+import { ePlayerColor, ePlayerType } from '~/enums/Apps';
 
 // interfaces
 import { tStoneTable } from '~/interfaces/Apps';
@@ -45,14 +45,29 @@ export default class Othello {
 
   /**
    * ゲーム開始
+   * @param playerTypeBlack - 黒のプレイヤータイプ
+   * @param playerTypeWhite - 白のプレイヤータイプ
    */
-  start() {
+  start(playerTypeBlack: ePlayerType, playerTypeWhite: ePlayerType) {
     this.isPlaying = true;
     this.players = [
-      new HumanPlayer(ePlayerColor.Black, this.table, this.viewer),
-      new HumanPlayer(ePlayerColor.White, this.table, this.viewer),
+      this.createPlayer(ePlayerColor.Black, playerTypeBlack),
+      this.createPlayer(ePlayerColor.White, playerTypeWhite),
     ];
     this.putPhase();
+  }
+
+  /**
+   * プレイヤーの作成
+   * @param color - 色
+   * @param playerType - プレイヤータイプ
+   */
+  createPlayer(color: ePlayerColor, playerType: ePlayerType): BasePlayer {
+    switch (playerType) {
+      case ePlayerType.Human:
+        return new HumanPlayer(color, this.table, this.viewer);
+    }
+    throw new Error(`存在しないプレイヤータイプです: ${playerType}`);
   }
 
   /**

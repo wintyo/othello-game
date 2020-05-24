@@ -3,7 +3,7 @@ import '../css/base.scss';
 import { sortBy } from 'lodash-es';
 
 import { COLOR_TEXT_MAP } from '~/constants/Apps';
-import { ePlayerColor } from '~/enums/Apps';
+import { ePlayerColor, ePlayerType } from '~/enums/Apps';
 
 import Othello from './apps/Othello';
 
@@ -24,6 +24,8 @@ const othello = new Othello(elCanvas, BOARD_SIZE);
 
 const elPlayButton = document.getElementById('play-button') as HTMLButtonElement;
 const elTableSelect = document.getElementById('table-select') as HTMLSelectElement;
+const elPlayerTypeSelectBlack = document.getElementById('player-type-select-black') as HTMLSelectElement;
+const elPlayerTypeSelectWhite = document.getElementById('player-type-select-white') as HTMLSelectElement;
 const elCountBlack = document.getElementById('count-black') as HTMLInputElement;
 const elCountWhite = document.getElementById('count-white') as HTMLInputElement;
 const elMessage = document.getElementById('message') as HTMLDivElement;
@@ -32,13 +34,19 @@ const OTHELLO_DATA_OPTIONS = [
   { id: 'othello-0', name: '盤面1', data: othelloData1 },
   { id: 'othello-1', name: '盤面2', data: othelloData2 },
 ];
-let othelloId = 'othello-0';
+elTableSelect.value = 'othello-0';
+
+const PLAYER_TYPE_OPTIONS = [
+  { id: ePlayerType.Human, name: '人間' },
+];
+elPlayerTypeSelectBlack.value = ePlayerType.Human;
+elPlayerTypeSelectWhite.value = ePlayerType.Human;
 
 /**
  * オセロデータを返す
- * @param othelloId - 盤面ID
  */
-function getOthelloData(othelloId: string) {
+function getOthelloData() {
+  const othelloId = elTableSelect.value;
   const option = OTHELLO_DATA_OPTIONS.find((OTHELLO_DATA_OPTION) => OTHELLO_DATA_OPTION.id === othelloId);
   if (!option) {
     return [[]];
@@ -53,11 +61,17 @@ OTHELLO_DATA_OPTIONS.forEach((OTHELLO_DATA_OPTION) => {
   elTableSelect.appendChild(elOption);
 });
 
+PLAYER_TYPE_OPTIONS.forEach((PLAYER_TYPE_OPTION) => {
+  const elOption = document.createElement('option');
+  elOption.value = PLAYER_TYPE_OPTION.id;
+  elOption.innerText = PLAYER_TYPE_OPTION.name;
+  elPlayerTypeSelectBlack.appendChild(elOption.cloneNode(true));
+  elPlayerTypeSelectWhite.appendChild(elOption.cloneNode(true));
+});
+
 if (elPlayButton && elTableSelect && elCountBlack && elCountWhite && elMessage) {
-  elTableSelect.addEventListener('change', (event) => {
-    const optionId: string = (event.target as HTMLSelectElement).value;
-    othelloId = optionId;
-    othello.reset(getOthelloData(othelloId));
+  elTableSelect.addEventListener('change', () => {
+    othello.reset(getOthelloData());
   });
 
   othello.event.on('num-stones', (numStoneMap) => {
@@ -95,6 +109,8 @@ if (elPlayButton && elTableSelect && elCountBlack && elCountWhite && elMessage) 
   othello.event.on('reset', () => {
     elMessage.innerText = '左上の「開始」ボタンをクリックして始めてください。';
     elTableSelect.removeAttribute('disabled');
+    elPlayerTypeSelectBlack.removeAttribute('disabled');
+    elPlayerTypeSelectWhite.removeAttribute('disabled');
   });
 
   const getPlayButtonText = () => {
@@ -105,15 +121,20 @@ if (elPlayButton && elTableSelect && elCountBlack && elCountWhite && elMessage) 
     if (!othello.isPlaying) {
       window.alert('ゲームスタート');
       elTableSelect.setAttribute('disabled', 'true');
-      othello.start();
+      elPlayerTypeSelectBlack.setAttribute('disabled', 'true');
+      elPlayerTypeSelectWhite.setAttribute('disabled', 'true');
+      othello.start(
+        elPlayerTypeSelectBlack.value as ePlayerType,
+        elPlayerTypeSelectWhite.value as ePlayerType,
+      );
       elPlayButton.innerText = getPlayButtonText();
       return;
     }
 
     if (window.confirm('リセットしてもよろしいですか？')) {
-      othello.reset(getOthelloData(othelloId));
+      othello.reset(getOthelloData());
       elPlayButton.innerText = getPlayButtonText();
     }
   });
 }
-othello.reset(getOthelloData(othelloId));
+othello.reset(getOthelloData());
