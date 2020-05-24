@@ -10,6 +10,11 @@
   }
 }
 
+.controller {
+  display: flex;
+  justify-content: space-between;
+}
+
 .info {
   &__num-stone {
     display: flex;
