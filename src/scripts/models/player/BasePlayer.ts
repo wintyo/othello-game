@@ -37,4 +37,9 @@ export default abstract class BasePlayer {
    * 石を置くフェーズの終了
    */
   abstract finishPutPhase(): void;
+
+  /**
+   * 破棄処理
+   */
+  abstract destroy(): void;
 }

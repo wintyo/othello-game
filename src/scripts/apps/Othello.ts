@@ -40,10 +40,7 @@ export default class Othello {
     this.event = new EventEmitter<IEvents>();
     this.table = new Table();
     this.viewer = new OthelloViewer(elCanvas, boardSize, this.table);
-    this.players = [
-      new HumanPlayer(ePlayerColor.Black, this.table, this.viewer),
-      new HumanPlayer(ePlayerColor.White, this.table, this.viewer),
-    ];
+    this.players = [];
   }
 
   /**
@@ -51,6 +48,10 @@ export default class Othello {
    */
   start() {
     this.isPlaying = true;
+    this.players = [
+      new HumanPlayer(ePlayerColor.Black, this.table, this.viewer),
+      new HumanPlayer(ePlayerColor.White, this.table, this.viewer),
+    ];
     this.putPhase();
   }
 
@@ -60,11 +61,17 @@ export default class Othello {
   putPhase() {
     const nowPlayer = this.players[this.turn];
     nowPlayer.putPhase();
-    nowPlayer.event.once('put-stone', async ({ x, y, color }) => {
-      const turnPositionsList = this.table.putStone(x, y, color);
-      await this.viewer.putStone({ x, y }, color, turnPositionsList);
-      this.event.emit('num-stones', this.table.numStoneMap);
-      this.nextTurn();
+    nowPlayer.event.on('put-stone', async ({ x, y, color }) => {
+      try {
+        const turnPositionsList = this.table.putStone(x, y, color);
+        await this.viewer.putStone({ x, y }, color, turnPositionsList);
+        this.event.emit('num-stones', this.table.numStoneMap);
+        nowPlayer.finishPutPhase();
+        nowPlayer.event.removeAllListeners('put-stone');
+        this.nextTurn();
+      } catch (e) {
+        window.alert(e);
+      }
     });
     this.event.emit('own-turn', nowPlayer.color);
   }
@@ -109,8 +116,13 @@ export default class Othello {
   reset(othelloData: tStoneTable) {
     this.isPlaying = false;
     this.turn = 0;
+    this.players.forEach((player) => {
+      player.destroy();
+    });
+    this.players = [];
     this.table.reset(othelloData);
     this.viewer.reset(othelloData);
+
     this.event.emit('num-stones', this.table.numStoneMap);
     this.event.emit('reset');
   }
