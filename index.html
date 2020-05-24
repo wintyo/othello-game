@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title></title>
+  <link href="./index.css?d6c49c2b89c8f7eb5cb6" rel="stylesheet"></head>
+  <body>
+    <div class="othello">
+      <div class="othello__controller">
+        <div class="controller">
+          <div class="controller__play">
+            <button id="play-button">開始</button>
+          </div>
+          <div class="controller__table">
+            <select id="table-select"></select>
+          </div>
+        </div>
+      </div>
+      <div class="othello__message" id="message"></div>
+      <div class="othello__info">
+        <div class="info">
+          <div class="info__players">
+            <div class="player">
+              <div class="player__color">黒</div>
+              <div class="player__type">
+                <select id="player-type-select-black"></select>
+              </div>
+              <div class="player__count">
+                <div class="stone">
+                  <div class="stone__label">個数:</div>
+                  <input class="stone__count" id="count-black" value="0" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="player">
+              <div class="player__color">白</div>
+              <div class="player__type">
+                <select id="player-type-select-white"></select>
+              </div>
+              <div class="player__count">
+                <div class="stone">
+                  <div class="stone__label">個数:</div>
+                  <input class="stone__count" id="count-white" value="0" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="othello__game">
+        <div id="app"></div>
+      </div>
+    </div>
+  <script type="text/javascript" src="./vendor.js"></script><script type="text/javascript" src="./index.js?d6c49c2b89c8f7eb5cb6"></script></body>
+</html>
