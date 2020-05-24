@@ -51,7 +51,7 @@ export default class AIRandomPlayer extends BasePlayer {
    * 石を置くフェーズの終了
    */
   finishPutPhase() {
-
+    //
   }
 
   /**

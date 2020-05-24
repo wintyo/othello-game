@@ -82,9 +82,9 @@ export default class Othello {
     nowPlayer.event.on('put-stone', async ({ x, y, color }) => {
       try {
         const turnPositionsList = this.table.putStone(x, y, color);
+        nowPlayer.finishPutPhase();
         await this.viewer.putStone({ x, y }, color, turnPositionsList);
         this.event.emit('num-stones', this.table.numStoneMap);
-        nowPlayer.finishPutPhase();
         nowPlayer.event.removeAllListeners('put-stone');
         this.nextTurn();
       } catch (e) {
