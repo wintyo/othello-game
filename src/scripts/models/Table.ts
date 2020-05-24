@@ -1,12 +1,8 @@
-import { EventEmitter } from 'events';
+import { flatten } from 'lodash-es';
 
 // interfaces
 import { IOthelloPosition, IOthelloVector, tStoneTable } from '~/interfaces/Apps';
 import { ePlayerColor } from '~/enums/Apps';
-
-interface IEvents {
-  reset: void;
-}
 
 /**
  * 一方向に対して交換できる番地を返す
@@ -75,14 +71,40 @@ function getTurnPositionsList(
 }
 
 export default class Table {
-  /** イベント */
-  public event: EventEmitter<IEvents>;
-
   /** 石情報 */
   public stones: tStoneTable = [[]];
 
-  constructor() {
-    this.event = new EventEmitter<IEvents>();
+  /** 各色の石の数を算出 */
+  get numStoneMap(): { [color: number]: number } {
+    const colors = Object.values(ePlayerColor).filter((value) => typeof value === 'number');
+    const numStoneMap = Object.assign({}, ...colors.map((color) => ({
+      [color]: 0,
+    })));
+
+    this.stones.forEach((stoneList) => {
+      stoneList.forEach((stone) => {
+        if (!stone) {
+          return;
+        }
+        numStoneMap[stone] += 1;
+      });
+    });
+
+    return numStoneMap;
+  }
+
+  /**
+   * 石が0になったプレイヤーがいるかチェック
+   */
+  checkEmptyStonePlayer() {
+    return Object.keys(this.numStoneMap).some((color: any) => this.numStoneMap[color] === 0);
+  }
+
+  /**
+   * 全ての石が配置されたかチェック
+   */
+  checkAllStoneFilled() {
+    return flatten(this.stones).every((stone) => stone !== 0);
   }
 
   /**
@@ -90,7 +112,6 @@ export default class Table {
    */
   reset(othelloData: tStoneTable) {
     this.stones = othelloData;
-    this.event.emit('reset');
   }
 
   /**

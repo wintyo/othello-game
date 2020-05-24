@@ -8,4 +8,22 @@ html(lang="ja")
     meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
     title
   body
-    #app
+    .othello
+      .othello__controller
+        .controller
+          .controller__play
+            button#play-button 開始
+      .othello__info
+        .info
+          .info__num-stone
+            .stone
+              .stone__label 黒:
+              input.stone__count#count-black(value="0", readonly)
+            span 、
+            .stone
+              .stone__label 白:
+              input.stone__count#count-white(value="0", readonly)
+      .othello__message#message
+        | メッセージです。
+      .othello__game
+        #app

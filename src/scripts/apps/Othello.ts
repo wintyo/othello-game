@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 import Table from '../models/Table';
 import OthelloViewer from '../viewers/OthelloViewer';
 import BasePlayer from '../models/player/BasePlayer';
@@ -8,7 +10,17 @@ import { ePlayerColor } from '~/enums/Apps';
 // interfaces
 import { tStoneTable } from '~/interfaces/Apps';
 
+interface IEvents {
+  'num-stones': { [color: number]: number };
+  'own-turn': ePlayerColor;
+  'pass': ePlayerColor;
+  'finish': { [color: number]: number };
+}
+
 export default class Othello {
+  /** イベント */
+  public event: EventEmitter<IEvents>;
+
   /** 盤面情報 */
   private table: Table;
   /** ビューワー */
@@ -22,6 +34,7 @@ export default class Othello {
     elCanvas: HTMLCanvasElement,
     boardSize: number,
   ) {
+    this.event = new EventEmitter<IEvents>();
     this.table = new Table();
     this.viewer = new OthelloViewer(elCanvas, boardSize, this.table);
     this.players = [
@@ -46,14 +59,22 @@ export default class Othello {
     nowPlayer.event.once('put-stone', async ({ x, y, color }) => {
       const turnPositionsList = this.table.putStone(x, y, color);
       await this.viewer.putStone({ x, y }, color, turnPositionsList);
+      this.event.emit('num-stones', this.table.numStoneMap);
       this.nextTurn();
     });
+    this.event.emit('own-turn', nowPlayer.color);
   }
 
   /**
    * 次のターンへ移る
    */
   nextTurn() {
+    // ゲーム終了かチェックする
+    if (this.table.checkAllStoneFilled() || this.table.checkEmptyStonePlayer()) {
+      this.event.emit('finish', this.table.numStoneMap);
+      return;
+    }
+
     // 置けるプレイヤーが出るまで次のプレイヤーに移動する
     let nextTurn = (this.turn + 1) % this.players.length;
     while (nextTurn !== this.turn) {
@@ -64,6 +85,7 @@ export default class Othello {
         this.putPhase();
         return;
       }
+      this.event.emit('pass', nextPlayer.color);
       nextTurn = (nextTurn + 1) % this.players.length;
     }
 
@@ -73,7 +95,7 @@ export default class Othello {
       return;
     }
 
-    console.log('finish');
+    this.event.emit('finish', this.table.numStoneMap);
   }
 
   /**
@@ -84,5 +106,6 @@ export default class Othello {
     this.turn = 0;
     this.table.reset(othelloData);
     this.viewer.reset(othelloData);
+    this.event.emit('num-stones', this.table.numStoneMap);
   }
 }

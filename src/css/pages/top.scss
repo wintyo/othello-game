@@ -1,0 +1,37 @@
+.othello {
+  max-width: 500px;
+  margin: 0 auto;
+  margin-top: 20px;
+
+  &__message {
+    padding: 5px 0;
+    font-size: 18px;
+    text-align: center;
+  }
+}
+
+.info {
+  &__num-stone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0;
+  }
+}
+
+.stone {
+  display: inline-flex;
+  align-items: center;
+
+  &__count {
+    width: 40px;
+    margin-left: 5px;
+    font-size: 20px;
+    text-align: center;
+    outline: 0;
+  }
+}
+
+#app > canvas {
+  width: 100%;
+}
