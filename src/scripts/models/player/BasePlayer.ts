@@ -24,7 +24,6 @@ export default abstract class BasePlayer {
    * @param y - y座標
    */
   putStone(x: number, y: number) {
-    // this.table.putStone(x, y, this.color);
     this.event.emit('put-stone', { x, y, color: this.color });
   }
 

@@ -4,6 +4,7 @@ import Table from '../models/Table';
 import OthelloViewer from '../viewers/OthelloViewer';
 import BasePlayer from '../models/player/BasePlayer';
 import HumanPlayer from '../models/player/HumanPlayer';
+import AIRandomPlayer from '../models/player/AIRandomPlayer';
 
 import { ePlayerColor, ePlayerType } from '~/enums/Apps';
 
@@ -66,6 +67,8 @@ export default class Othello {
     switch (playerType) {
       case ePlayerType.Human:
         return new HumanPlayer(color, this.table, this.viewer);
+      case ePlayerType.AIRandom:
+        return new AIRandomPlayer(color, this.table);
     }
     throw new Error(`存在しないプレイヤータイプです: ${playerType}`);
   }
