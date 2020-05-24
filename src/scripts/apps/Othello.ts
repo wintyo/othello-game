@@ -21,9 +21,8 @@ export default class Othello {
   constructor(
     elCanvas: HTMLCanvasElement,
     boardSize: number,
-    numDivision: number,
   ) {
-    this.table = new Table(numDivision);
+    this.table = new Table();
     this.viewer = new OthelloViewer(elCanvas, boardSize, this.table);
     this.players = [
       new HumanPlayer(ePlayerColor.Black, this.table, this.viewer),
@@ -84,5 +83,6 @@ export default class Othello {
   reset(othelloData: tStoneTable) {
     this.turn = 0;
     this.table.reset(othelloData);
+    this.viewer.reset(othelloData);
   }
 }
