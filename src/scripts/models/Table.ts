@@ -28,7 +28,7 @@ function getTurnPositionsInLine(
     checkPos.x += vec.x; checkPos.y += vec.y;
 
     // オセロ盤の範囲外ならループを抜ける
-    if (checkPos.x < 0 || checkPos.x >= stones.length ||
+    if (checkPos.x < 0 || checkPos.x >= (stones[0] || []).length ||
       checkPos.y < 0 || checkPos.y >= stones.length) {
       break;
     }
@@ -79,16 +79,9 @@ export default class Table {
   public event: EventEmitter<IEvents>;
 
   /** 石情報 */
-  public stones: tStoneTable;
+  public stones: tStoneTable = [[]];
 
-  constructor(
-    public numDivision: number,
-  ) {
-    this.stones = new Array(numDivision);
-    for (let i = 0; i < this.stones.length; i++) {
-      this.stones[i] = new Array(numDivision);
-    }
-
+  constructor() {
     this.event = new EventEmitter<IEvents>();
   }
 
@@ -124,6 +117,12 @@ export default class Table {
     return turnPositionsList;
   }
 
+  /**
+   * 交換できる位置を探す
+   * @param x - x座標
+   * @param y - y座標
+   * @param color - オセロ色
+   */
   getTurnPositionsList(x: number, y: number, color: ePlayerColor) {
     return getTurnPositionsList(this.stones, { x, y }, color);
   }
@@ -133,8 +132,8 @@ export default class Table {
    * @param color - 色
    */
   checkCanPutStone(color: ePlayerColor) {
-    for (let y = 0; y < this.numDivision; y++) {
-      for (let x = 0; x < this.numDivision; x++) {
+    for (let y = 0; y < this.stones.length; y++) {
+      for (let x = 0; x < this.stones[0].length; x++) {
         const turnPositionsList = getTurnPositionsList(this.stones, { x, y }, color);
         // ひっくり返せる場所が存在したらtrueを返して終了
         if (turnPositionsList.length > 0) {

@@ -4,7 +4,7 @@ import { flatten } from 'lodash-es';
 
 import { omitNullableHandler } from '~/utils/';
 
-import { IOthelloPosition } from '~/interfaces/Apps';
+import { IOthelloPosition, tStoneTable } from '~/interfaces/Apps';
 
 import { ePlayerColor } from '~/enums/Apps';
 
@@ -41,7 +41,7 @@ export default class OthelloViewer {
   public event: EventEmitter<IEvents>;
 
   /** 1タイルあたりのサイズ */
-  private tileSize: number;
+  private tileSize: number = 0;
   /** レンダラー */
   private renderer!: THREE.WebGLRenderer;
   /** カメラ */
@@ -49,13 +49,13 @@ export default class OthelloViewer {
   /** シーン */
   private scene!: THREE.Scene;
   /** タイルオブジェクトリスト */
-  private tileObjList2D!: Array<Array<TileObject3D>>;
+  private tileObjList2D: Array<Array<TileObject3D>> = [[]];
   /** オセロ石のサイズ */
-  private stoneSize: number;
+  private stoneSize: number = 0;
   /** オセロ石の高さ */
   private stoneHeight = 0.2;
   /** プレビュー用の石 */
-  private previewStoneObj: StoneObject3D;
+  private previewStoneObj!: StoneObject3D;
 
   constructor(
     private elCanvas: HTMLCanvasElement,
@@ -63,19 +63,9 @@ export default class OthelloViewer {
     private table: Table,
   ) {
     this.event = new EventEmitter<IEvents>();
-    this.tileSize = boardSize / table.numDivision;
-    this.stoneSize = 0.9 * this.tileSize;
-
-    // 仮置きする石を用意しておく
-    this.previewStoneObj = createStone(this.stoneSize, this.stoneHeight, 1);
-    this.previewStoneObj.setOpacity(0.9);
 
     this.init();
     this.renderLoop();
-
-    this.table.event.on('reset', () => {
-      this.reset();
-    });
 
     this.elCanvas.addEventListener('mousemove', this.onMouseMove.bind(this));
     this.elCanvas.addEventListener('click', this.onMouseClick.bind(this));
@@ -91,29 +81,10 @@ export default class OthelloViewer {
     this.renderer = renderer;
 
     const camera = new THREE.PerspectiveCamera(75, this.elCanvas.width / this.elCanvas.height, 0.1, 100);
-    // タイルを描画する際に左上がtileSize/2だけはみ出ているのでその分を考慮する
-    const offset = this.tileSize / 2;
-    camera.position.set(this.boardSize / 2 - offset, 10, this.boardSize / 2 - offset + 5);
-    camera.lookAt(this.boardSize / 2 - offset, 0, this.boardSize / 2 - offset);
     this.camera = camera;
 
     const scene = new THREE.Scene();
     this.scene = scene;
-    // タイルの色を用意
-    const planeColor = { default: COLORS.DARKGREEN, focus: COLORS.YELLOW };
-    const frameColor = { default: COLORS.BLACK };
-    // オセロのタイル1つひとつを作成
-    const tileObjs = new Array(this.table.numDivision);
-    for (let y = 0; y < this.table.numDivision; y++) {
-      tileObjs[y] = new Array(this.table.numDivision);
-      for (let x = 0; x < this.table.numDivision; x++) {
-        const tileObj = new TileObject3D(this.tileSize, planeColor, frameColor);
-        tileObj.position.set(x * this.tileSize, 0, y * this.tileSize);
-        scene.add(tileObj);
-        tileObjs[y][x] = tileObj;
-      }
-    }
-    this.tileObjList2D = tileObjs;
   }
 
   /**
@@ -126,18 +97,49 @@ export default class OthelloViewer {
 
   /**
    * リセット処理
+   * @param stoneTable - オセロ盤情報
    */
-  reset() {
-    for (let i = 0; i < this.table.numDivision; i++) {
-      for (let j = 0; j < this.table.numDivision; j++) {
-        this.tileObjList2D[i][j].removeObject();
+  reset(stoneTable: tStoneTable) {
+    // 一度全てリセットする
+    this.tileObjList2D.forEach((tileObjList) => {
+      tileObjList.forEach((tileObj) => {
+        this.scene.remove(tileObj);
+      });
+    });
+
+    // タイルを描画する際に左上がtileSize/2だけはみ出ているのでその分を考慮する
+    this.tileSize = this.boardSize / (stoneTable[0] || []).length;
+    this.stoneSize = 0.9 * this.tileSize;
+    const offset = this.tileSize / 2;
+    this.camera.position.set(this.boardSize / 2 - offset, 10, this.boardSize / 2 - offset + 5);
+    this.camera.lookAt(this.boardSize / 2 - offset, 0, this.boardSize / 2 - offset);
+
+    // 仮置きする石を用意しておく
+    this.previewStoneObj = createStone(this.stoneSize, this.stoneHeight, 1);
+    this.previewStoneObj.setOpacity(0.9);
+
+    // タイルの色を用意
+    const planeColor = { default: COLORS.DARKGREEN, focus: COLORS.YELLOW };
+    const frameColor = { default: COLORS.BLACK };
+
+    // オセロのタイル1つひとつを作成
+    const tileObjs = new Array(stoneTable.length);
+    for (let y = 0; y < stoneTable.length; y++) {
+      tileObjs[y] = new Array(stoneTable[0].length);
+      for (let x = 0; x < stoneTable[0].length; x++) {
+        const tileObj = new TileObject3D(this.tileSize, planeColor, frameColor);
+        tileObj.position.set(x * this.tileSize, 0, y * this.tileSize);
+        this.scene.add(tileObj);
+        tileObjs[y][x] = tileObj;
+
         // 石が配置されていたらその色の石を配置する
-        if (this.table.stones[i][j]) {
-          const stone = createStone(this.stoneSize, this.stoneHeight, this.table.stones[i][j]);
-          this.tileObjList2D[i][j].putObject(stone);
+        if (stoneTable[y][x]) {
+          const stone = createStone(this.stoneSize, this.stoneHeight, stoneTable[y][x]);
+          tileObj.putObject(stone);
         }
       }
     }
+    this.tileObjList2D = tileObjs;
   }
 
   /**
@@ -282,8 +284,8 @@ export default class OthelloViewer {
     // @ts-ignore
     const index = planes.indexOf(objs[0].object);
     return {
-      x: index % this.table.numDivision,
-      y: Math.floor(index / this.table.numDivision),
+      x: index % (this.table.stones[0] || []).length,
+      y: Math.floor(index / (this.table.stones[0] || []).length),
     };
   }
 }
