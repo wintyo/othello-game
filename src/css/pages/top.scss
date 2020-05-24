@@ -1,0 +1,61 @@
+.othello {
+  max-width: 500px;
+  margin: 0 auto;
+  margin-top: 20px;
+
+  &__message {
+    padding: 5px 0;
+    font-size: 18px;
+    text-align: center;
+  }
+}
+
+.controller {
+  display: flex;
+  justify-content: space-between;
+}
+
+.info {
+  &__players {
+    display: flex;
+    border: solid 1px #000;
+  }
+}
+
+.player {
+  width: 100%;
+  padding: 5px 0;
+
+  & + & {
+    border-left: solid 1px #000;
+  }
+
+  &__type {
+    padding: 5px 0;
+    text-align: center;
+  }
+
+  &__color {
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+  }
+}
+
+.stone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__count {
+    width: 40px;
+    margin-left: 5px;
+    font-size: 20px;
+    text-align: center;
+    outline: 0;
+  }
+}
+
+#app > canvas {
+  width: 100%;
+}

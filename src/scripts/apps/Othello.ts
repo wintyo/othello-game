@@ -1,14 +1,29 @@
+import { EventEmitter } from 'events';
+
 import Table from '../models/Table';
 import OthelloViewer from '../viewers/OthelloViewer';
 import BasePlayer from '../models/player/BasePlayer';
 import HumanPlayer from '../models/player/HumanPlayer';
 
-import { ePlayerColor } from '~/enums/Apps';
+import { ePlayerColor, ePlayerType } from '~/enums/Apps';
 
 // interfaces
 import { tStoneTable } from '~/interfaces/Apps';
 
+interface IEvents {
+  'num-stones': { [color: number]: number };
+  'own-turn': ePlayerColor;
+  'pass': ePlayerColor;
+  'finish': { [color: number]: number };
+  'reset': void;
+}
+
 export default class Othello {
+  /** イベント */
+  public event: EventEmitter<IEvents>;
+  /** プレイ中か */
+  public isPlaying = false;
+
   /** 盤面情報 */
   private table: Table;
   /** ビューワー */
@@ -22,19 +37,37 @@ export default class Othello {
     elCanvas: HTMLCanvasElement,
     boardSize: number,
   ) {
+    this.event = new EventEmitter<IEvents>();
     this.table = new Table();
     this.viewer = new OthelloViewer(elCanvas, boardSize, this.table);
-    this.players = [
-      new HumanPlayer(ePlayerColor.Black, this.table, this.viewer),
-      new HumanPlayer(ePlayerColor.White, this.table, this.viewer),
-    ];
+    this.players = [];
   }
 
   /**
    * ゲーム開始
+   * @param playerTypeBlack - 黒のプレイヤータイプ
+   * @param playerTypeWhite - 白のプレイヤータイプ
    */
-  start() {
+  start(playerTypeBlack: ePlayerType, playerTypeWhite: ePlayerType) {
+    this.isPlaying = true;
+    this.players = [
+      this.createPlayer(ePlayerColor.Black, playerTypeBlack),
+      this.createPlayer(ePlayerColor.White, playerTypeWhite),
+    ];
     this.putPhase();
+  }
+
+  /**
+   * プレイヤーの作成
+   * @param color - 色
+   * @param playerType - プレイヤータイプ
+   */
+  createPlayer(color: ePlayerColor, playerType: ePlayerType): BasePlayer {
+    switch (playerType) {
+      case ePlayerType.Human:
+        return new HumanPlayer(color, this.table, this.viewer);
+    }
+    throw new Error(`存在しないプレイヤータイプです: ${playerType}`);
   }
 
   /**
@@ -43,17 +76,31 @@ export default class Othello {
   putPhase() {
     const nowPlayer = this.players[this.turn];
     nowPlayer.putPhase();
-    nowPlayer.event.once('put-stone', async ({ x, y, color }) => {
-      const turnPositionsList = this.table.putStone(x, y, color);
-      await this.viewer.putStone({ x, y }, color, turnPositionsList);
-      this.nextTurn();
+    nowPlayer.event.on('put-stone', async ({ x, y, color }) => {
+      try {
+        const turnPositionsList = this.table.putStone(x, y, color);
+        await this.viewer.putStone({ x, y }, color, turnPositionsList);
+        this.event.emit('num-stones', this.table.numStoneMap);
+        nowPlayer.finishPutPhase();
+        nowPlayer.event.removeAllListeners('put-stone');
+        this.nextTurn();
+      } catch (e) {
+        window.alert(e);
+      }
     });
+    this.event.emit('own-turn', nowPlayer.color);
   }
 
   /**
    * 次のターンへ移る
    */
   nextTurn() {
+    // ゲーム終了かチェックする
+    if (this.table.checkAllStoneFilled() || this.table.checkEmptyStonePlayer()) {
+      this.event.emit('finish', this.table.numStoneMap);
+      return;
+    }
+
     // 置けるプレイヤーが出るまで次のプレイヤーに移動する
     let nextTurn = (this.turn + 1) % this.players.length;
     while (nextTurn !== this.turn) {
@@ -64,6 +111,7 @@ export default class Othello {
         this.putPhase();
         return;
       }
+      this.event.emit('pass', nextPlayer.color);
       nextTurn = (nextTurn + 1) % this.players.length;
     }
 
@@ -73,7 +121,7 @@ export default class Othello {
       return;
     }
 
-    console.log('finish');
+    this.event.emit('finish', this.table.numStoneMap);
   }
 
   /**
@@ -81,8 +129,16 @@ export default class Othello {
    * @param othelloData - オセロデータ
    */
   reset(othelloData: tStoneTable) {
+    this.isPlaying = false;
     this.turn = 0;
+    this.players.forEach((player) => {
+      player.destroy();
+    });
+    this.players = [];
     this.table.reset(othelloData);
     this.viewer.reset(othelloData);
+
+    this.event.emit('num-stones', this.table.numStoneMap);
+    this.event.emit('reset');
   }
 }

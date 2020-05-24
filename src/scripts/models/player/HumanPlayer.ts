@@ -31,12 +31,7 @@ export default class HumanPlayer extends BasePlayer {
    * @param pos - タイル位置
    */
   onTileClick(pos: IOthelloPosition) {
-    try {
-      super.putStone(pos.x, pos.y);
-      this.finishPutPhase();
-    } catch (e) {
-      alert(e);
-    }
+    super.putStone(pos.x, pos.y);
   }
 
   /**
@@ -54,5 +49,12 @@ export default class HumanPlayer extends BasePlayer {
   finishPutPhase() {
     this.viewer.event.off('tile-hover', this.onTileHover);
     this.viewer.event.off('tile-click', this.onTileClick);
+  }
+
+  /**
+   * 破棄処理
+   */
+  destroy() {
+    this.finishPutPhase();
   }
 }

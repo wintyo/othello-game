@@ -8,4 +8,32 @@ html(lang="ja")
     meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
     title
   body
-    #app
+    .othello
+      .othello__controller
+        .controller
+          .controller__play
+            button#play-button 開始
+          .controller__table
+            select#table-select
+      .othello__message#message
+      .othello__info
+        .info
+          .info__players
+            .player
+              .player__color 黒
+              .player__type
+                select#player-type-select-black
+              .player__count
+                .stone
+                  .stone__label 個数:
+                  input.stone__count#count-black(value="0", readonly)
+            .player
+              .player__color 白
+              .player__type
+                select#player-type-select-white
+              .player__count
+                .stone
+                  .stone__label 個数:
+                  input.stone__count#count-white(value="0", readonly)
+      .othello__game
+        #app
