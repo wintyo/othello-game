@@ -1,5 +1,9 @@
 import { EventEmitter } from 'events';
 
+// interfaces
+import { IOthelloPosition, IOthelloVector, tStoneTable } from '~/interfaces/Apps';
+import { ePlayerColor } from '~/enums/Apps';
+
 interface IEvents {
   reset: void;
 }
@@ -12,12 +16,12 @@ interface IEvents {
  * @param color - 色
  */
 function getTurnPositionsInLine(
-  stones: Array<Array<number>>,
-  vec: { x: number, y: number },
-  pos: { x: number, y: number },
-  color: number,
+  stones: tStoneTable,
+  vec: IOthelloVector,
+  pos: IOthelloPosition,
+  color: ePlayerColor,
 ) {
-  const oppPositions: Array<{ x: number, y: number }> = [];
+  const oppPositions: Array<IOthelloPosition> = [];
   const checkPos = { ...pos };
   while (true) { // eslint-disable-line no-constant-condition
     // 次の座標へ進む
@@ -51,10 +55,11 @@ function getTurnPositionsInLine(
  * @param color - 色
  */
 function getTurnPositionsList(
-  stones: Array<Array<number>>,
-  pos: { x: number, y: number },
-  color: number,
+  stones: tStoneTable,
+  pos: IOthelloPosition,
+  color: ePlayerColor,
 ) {
+  // 既に石が配置されていたら交換できないので空配列を返す
   if (stones[pos.y][pos.x]) {
     return [];
   }
@@ -74,7 +79,7 @@ export default class Table {
   public event: EventEmitter<IEvents>;
 
   /** 石情報 */
-  public stones: Array<Array<number>>;
+  public stones: tStoneTable;
 
   constructor(
     public numDivision: number,
@@ -90,7 +95,7 @@ export default class Table {
   /**
    * データのリセット
    */
-  reset(othelloData: Array<Array<number>>) {
+  reset(othelloData: tStoneTable) {
     this.stones = othelloData;
     this.event.emit('reset');
   }
@@ -101,7 +106,7 @@ export default class Table {
    * @param y - y座標
    * @param color - 色
    */
-  putStone(x: number, y: number, color: number) {
+  putStone(x: number, y: number, color: ePlayerColor) {
     // 交換できる番地を取得
     const turnPositionsList = getTurnPositionsList(this.stones, { x, y }, color);
     if (turnPositionsList.length <= 0) {
@@ -119,7 +124,7 @@ export default class Table {
     return turnPositionsList;
   }
 
-  getTurnPositionsList(x: number, y: number, color: number) {
+  getTurnPositionsList(x: number, y: number, color: ePlayerColor) {
     return getTurnPositionsList(this.stones, { x, y }, color);
   }
 
@@ -127,7 +132,7 @@ export default class Table {
    * 置く場所が存在するかチェック
    * @param color - 色
    */
-  checkCanPutStone(color: number) {
+  checkCanPutStone(color: ePlayerColor) {
     for (let y = 0; y < this.numDivision; y++) {
       for (let x = 0; x < this.numDivision; x++) {
         const turnPositionsList = getTurnPositionsList(this.stones, { x, y }, color);

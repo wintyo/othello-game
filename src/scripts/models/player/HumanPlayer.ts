@@ -2,11 +2,14 @@ import BasePlayer from './BasePlayer';
 import Table from '../Table';
 import OthelloViewer from '~/viewers/OthelloViewer';
 
+import { IOthelloPosition } from '~/interfaces/Apps';
+import { ePlayerColor } from '~/enums/Apps';
+
 export default class HumanPlayer extends BasePlayer {
   /** ビューワー */
   private viewer: OthelloViewer;
 
-  constructor(color: number, table: Table, viewer: OthelloViewer) {
+  constructor(color: ePlayerColor, table: Table, viewer: OthelloViewer) {
     super(color, table);
     this.viewer = viewer;
 
@@ -18,7 +21,7 @@ export default class HumanPlayer extends BasePlayer {
    * viewerのタイル上に乗った時
    * @param pos - タイル位置
    */
-  onTileHover(pos: { x: number, y: number }) {
+  onTileHover(pos: IOthelloPosition) {
     // 試し置きの結果を表示する
     this.viewer.previewPutStone(pos.x, pos.y, this.color);
   }
@@ -27,7 +30,7 @@ export default class HumanPlayer extends BasePlayer {
    * viewerのタイル上をクリックしたときの処理
    * @param pos - タイル位置
    */
-  onTileClick(pos: { x: number, y: number }) {
+  onTileClick(pos: IOthelloPosition) {
     try {
       super.putStone(pos.x, pos.y);
       this.finishPutPhase();

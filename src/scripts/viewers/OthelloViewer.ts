@@ -4,9 +4,13 @@ import { flatten } from 'lodash-es';
 
 import { omitNullableHandler } from '~/utils/';
 
+import { IOthelloPosition } from '~/interfaces/Apps';
+
+import { ePlayerColor } from '~/enums/Apps';
+
 interface IEvents {
-  'tile-hover': { x: number, y: number };
-  'tile-click': { x: number, y: number };
+  'tile-hover': IOthelloPosition;
+  'tile-click': IOthelloPosition;
 }
 
 // model
@@ -25,7 +29,7 @@ import StoneObject3D from './models/StoneObject3D';
  * @param height - 高さ
  * @param color - 色
  */
-function createStone(size: number, height: number, color: number) {
+function createStone(size: number, height: number, color: ePlayerColor) {
   const stone = new StoneObject3D(size, height);
   stone.position.set(0, height / 2, 0);
   stone.setColor(color);
@@ -191,9 +195,9 @@ export default class OthelloViewer {
    * @param turnPositionsList - 反転させる座標リスト
    */
   putStone(
-    pos: { x: number, y: number },
+    pos: IOthelloPosition,
     color: number,
-    turnPositionsList: Array<Array<{ x: number, y: number }>>
+    turnPositionsList: Array<Array<IOthelloPosition>>
   ) {
     this.resetPreviewStone();
     const stone = createStone(this.stoneSize, this.stoneHeight, color);
