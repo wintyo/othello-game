@@ -10,4 +10,6 @@ export enum ePlayerColor {
 export enum ePlayerType {
   /** 人間 */
   Human = 'Human',
+  /** ランダムAI */
+  AIRandom = 'AIRandom',
 }

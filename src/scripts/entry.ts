@@ -38,9 +38,8 @@ elTableSelect.value = 'othello-0';
 
 const PLAYER_TYPE_OPTIONS = [
   { id: ePlayerType.Human, name: '人間' },
+  { id: ePlayerType.AIRandom, name: 'コンピュータ' },
 ];
-elPlayerTypeSelectBlack.value = ePlayerType.Human;
-elPlayerTypeSelectWhite.value = ePlayerType.Human;
 
 /**
  * オセロデータを返す
@@ -68,6 +67,8 @@ PLAYER_TYPE_OPTIONS.forEach((PLAYER_TYPE_OPTION) => {
   elPlayerTypeSelectBlack.appendChild(elOption.cloneNode(true));
   elPlayerTypeSelectWhite.appendChild(elOption.cloneNode(true));
 });
+elPlayerTypeSelectBlack.value = ePlayerType.Human;
+elPlayerTypeSelectWhite.value = ePlayerType.AIRandom;
 
 if (elPlayButton && elTableSelect && elCountBlack && elCountWhite && elMessage) {
   elTableSelect.addEventListener('change', () => {

@@ -4,6 +4,7 @@ import Table from '../models/Table';
 import OthelloViewer from '../viewers/OthelloViewer';
 import BasePlayer from '../models/player/BasePlayer';
 import HumanPlayer from '../models/player/HumanPlayer';
+import AIRandomPlayer from '../models/player/AIRandomPlayer';
 
 import { ePlayerColor, ePlayerType } from '~/enums/Apps';
 
@@ -66,6 +67,8 @@ export default class Othello {
     switch (playerType) {
       case ePlayerType.Human:
         return new HumanPlayer(color, this.table, this.viewer);
+      case ePlayerType.AIRandom:
+        return new AIRandomPlayer(color, this.table);
     }
     throw new Error(`存在しないプレイヤータイプです: ${playerType}`);
   }
@@ -79,9 +82,9 @@ export default class Othello {
     nowPlayer.event.on('put-stone', async ({ x, y, color }) => {
       try {
         const turnPositionsList = this.table.putStone(x, y, color);
+        nowPlayer.finishPutPhase();
         await this.viewer.putStone({ x, y }, color, turnPositionsList);
         this.event.emit('num-stones', this.table.numStoneMap);
-        nowPlayer.finishPutPhase();
         nowPlayer.event.removeAllListeners('put-stone');
         this.nextTurn();
       } catch (e) {
