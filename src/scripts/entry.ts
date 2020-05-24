@@ -58,6 +58,27 @@ if (elPlayButton && elCountBlack && elCountWhite && elMessage) {
     // そうでない場合は引き分けを表示する
     elMessage.innerText = '引き分け';
   });
+
+  othello.event.on('reset', () => {
+    elMessage.innerText = '左上の「開始」ボタンをクリックして始めてください。';
+  });
+
+  const getPlayButtonText = () => {
+    return othello.isPlaying ? 'リセット' : '開始';
+  };
+  elPlayButton.innerText = getPlayButtonText();
+  elPlayButton.addEventListener('click', () => {
+    if (!othello.isPlaying) {
+      window.alert('ゲームスタート');
+      othello.start();
+      elPlayButton.innerText = getPlayButtonText();
+      return;
+    }
+
+    if (window.confirm('リセットしてもよろしいですか？')) {
+      othello.reset(othelloData);
+      elPlayButton.innerText = getPlayButtonText();
+    }
+  });
 }
 othello.reset(othelloData);
-othello.start();

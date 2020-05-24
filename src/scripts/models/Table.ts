@@ -1,4 +1,4 @@
-import { flatten } from 'lodash-es';
+import { flatten, cloneDeep } from 'lodash-es';
 
 // interfaces
 import { IOthelloPosition, IOthelloVector, tStoneTable } from '~/interfaces/Apps';
@@ -111,7 +111,7 @@ export default class Table {
    * データのリセット
    */
   reset(othelloData: tStoneTable) {
-    this.stones = othelloData;
+    this.stones = cloneDeep(othelloData);
   }
 
   /**

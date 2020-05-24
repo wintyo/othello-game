@@ -15,11 +15,14 @@ interface IEvents {
   'own-turn': ePlayerColor;
   'pass': ePlayerColor;
   'finish': { [color: number]: number };
+  'reset': void;
 }
 
 export default class Othello {
   /** イベント */
   public event: EventEmitter<IEvents>;
+  /** プレイ中か */
+  public isPlaying = false;
 
   /** 盤面情報 */
   private table: Table;
@@ -47,6 +50,7 @@ export default class Othello {
    * ゲーム開始
    */
   start() {
+    this.isPlaying = true;
     this.putPhase();
   }
 
@@ -103,9 +107,11 @@ export default class Othello {
    * @param othelloData - オセロデータ
    */
   reset(othelloData: tStoneTable) {
+    this.isPlaying = false;
     this.turn = 0;
     this.table.reset(othelloData);
     this.viewer.reset(othelloData);
     this.event.emit('num-stones', this.table.numStoneMap);
+    this.event.emit('reset');
   }
 }
